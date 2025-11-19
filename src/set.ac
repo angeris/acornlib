@@ -611,6 +611,25 @@ define intersection_family[K, I](f: I -> Set[K]) -> Set[K] {
     Set[K].new(and_family(f))
 }
 
+theorem family_union_of_empty_sets_is_empty[T, U](f: T -> Set[U]) {
+    forall(n: T) {
+        f(n) = Set.empty_set[U]
+    } implies union_family(f) = Set.empty_set[U]
+} by {
+    let u = union_family(f)
+
+    forall(x: U) {
+        if u.contains(x) {
+            let (n: T) satisfy {
+                f(n).contains(x)
+            }
+            false
+        }
+    }
+
+    u.contains = Set.empty_set[U].contains
+}
+
 // Sequences of sets
 /// True if a sequence of sets is decreasing, meaning each set contains the next.
 define is_decreasing[T](seq: Nat -> Set[T]) -> Bool {
@@ -810,6 +829,7 @@ theorem seq_intersection_complement_eq_union_complement[T](s: Nat -> Set[T]) {
 
     u.contains = v.contains
 }
+
 
 // Proving indexed union and intersection definitions are consistent
 // with family definitions

@@ -1,0 +1,173 @@
+from real import Real
+from option import Option
+
+structure NonnegativeReal {
+    value: Real
+} constraint {
+    value >= Real.0
+}
+
+attributes NonnegativeReal {
+    define add(self, other: NonnegativeReal) -> NonnegativeReal {
+        NonnegativeReal.new(self.value + other.value)
+    }
+
+    define mul(self, other: NonnegativeReal) -> NonnegativeReal {
+        NonnegativeReal.new(self.value * other.value)
+    }
+
+    define sub(self, other: NonnegativeReal) -> Option[NonnegativeReal] {
+        if self.value < other.value {
+            Option.none
+        } else {
+            Option.some(NonnegativeReal.new(self.value - other.value))
+        }
+    }
+
+    define div(self, other: NonnegativeReal) -> Option[NonnegativeReal] {
+        if other.value = Real.0 {
+            Option.none
+        } else {
+            Option.some(NonnegativeReal.new(self.value / other.value))
+        }
+    }
+
+    define to_real(self) -> Real {
+        self.value
+    }
+
+    let 0: NonnegativeReal = NonnegativeReal.new(Real.0)
+
+    define lt(self, other: NonnegativeReal) -> Bool {
+        self.value < other.value
+    }
+}
+
+inductive ExtendedNonnegReal {
+    finite(NonnegativeReal)
+    infinity
+}
+
+attributes ExtendedNonnegReal {
+    let 0: ExtendedNonnegReal = ExtendedNonnegReal.finite(NonnegativeReal.0)
+
+    define add(self, other: ExtendedNonnegReal) -> ExtendedNonnegReal {
+        match(self) {
+            ExtendedNonnegReal.finite(x) {
+                match(other) {
+                    ExtendedNonnegReal.finite(y) {
+                        ExtendedNonnegReal.finite(x + y)
+                    }
+                    ExtendedNonnegReal.infinity {
+                        ExtendedNonnegReal.infinity
+                    }
+                }
+            }
+            ExtendedNonnegReal.infinity {
+                ExtendedNonnegReal.infinity
+            }
+        }
+    }
+
+    // 0*infinity = 0 for nonnegatives
+    define mul(self, other: ExtendedNonnegReal) -> ExtendedNonnegReal {
+        match(self) {
+            ExtendedNonnegReal.finite(x) {
+                match(other) {
+                    ExtendedNonnegReal.finite(y) {
+                        ExtendedNonnegReal.finite(x*y)
+                    }
+                    ExtendedNonnegReal.infinity {
+                        if x = NonnegativeReal.0 {
+                            ExtendedNonnegReal.0
+                        } else {
+                            ExtendedNonnegReal.infinity
+                        }
+                    }
+                }
+            }
+            ExtendedNonnegReal.infinity {
+                match(other) {
+                    ExtendedNonnegReal.finite(y) {
+                        if y = NonnegativeReal.0 {
+                            ExtendedNonnegReal.0
+                        } else {
+                            ExtendedNonnegReal.infinity
+                        }
+                    }
+                    ExtendedNonnegReal.infinity {
+                        ExtendedNonnegReal.infinity
+                    }
+                }
+            }
+        }
+    }
+
+    define div(self, other: ExtendedNonnegReal) -> ExtendedNonnegReal {
+        match (self) {
+            ExtendedNonnegReal.finite(x) {
+                match (other) {
+                    ExtendedNonnegReal.finite(y) {
+                        match (x/y) {
+                            Option.some(result) {
+                                ExtendedNonnegReal.finite(result)
+                            }
+                            Option.none {
+                                ExtendedNonnegReal.infinity
+                            }
+                        }
+                    }
+                    ExtendedNonnegReal.infinity {
+                        ExtendedNonnegReal.0
+                    }
+                }
+            }
+            ExtendedNonnegReal.infinity {
+                match (other) {
+                    ExtendedNonnegReal.finite(y) {
+                        if y = NonnegativeReal.0 {
+                            ExtendedNonnegReal.infinity
+                        } else {
+                            ExtendedNonnegReal.infinity
+                        }
+                    }
+                    ExtendedNonnegReal.infinity {
+                        ExtendedNonnegReal.infinity
+                    }
+                }
+            }
+        }
+    }
+
+    define sub(self, other: ExtendedNonnegReal) -> Option[ExtendedNonnegReal] {
+        match (self) {
+            ExtendedNonnegReal.finite(x) {
+                match (other) {
+                    ExtendedNonnegReal.finite(y) {
+                        match (x - y) {
+                            Option.some(result) {
+                                Option.some(ExtendedNonnegReal.finite(result))
+                            }
+                            Option.none {
+                                Option.none
+                            }
+                        }
+                    }
+                    ExtendedNonnegReal.infinity {
+                        Option.none
+                    }
+                }
+            }
+            ExtendedNonnegReal.infinity {
+                match (other) {
+                    ExtendedNonnegReal.finite(y) {
+                        Option.some(ExtendedNonnegReal.infinity)
+                    }
+                    ExtendedNonnegReal.infinity {
+                        Option.none
+                    }
+                }
+            }
+        }
+    }
+}

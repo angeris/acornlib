@@ -1,0 +1,1 @@
+{"goal":"exists(k0: SigmaAlgebra[T], k1: SigmaAlgebra[T] -> ExtendedNonnegReal) { true }","proof":[]}

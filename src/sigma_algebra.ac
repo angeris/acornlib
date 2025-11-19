@@ -1,0 +1,79 @@
+from set import Set, union_family
+from nat import Nat
+
+define closed_under_countable_union[T](sets: Set[Set[T]]) -> Bool {
+    forall(f: Nat -> Set[T]) {
+        forall(n: Nat) {
+            sets.contains(f(n))
+        } implies sets.contains(union_family(f))
+    }
+}
+
+define closed_under_complement[T](sets: Set[Set[T]]) -> Bool {
+    forall(s: Set[T]) {
+        sets.contains(s) implies sets.contains(s.c)
+    }
+}
+
+let trivial_sigma_algebra_sets[T] = Set.singleton(Set.empty_set[T]).insert(Set.universal_set)
+
+theorem trivial_sigma_algebra_set_is_empty_or_universal[T](s: Set[T]) {
+    trivial_sigma_algebra_sets[T].contains(s) implies (s = Set.empty_set or s = Set.universal_set)
+}
+
+theorem trivial_sigma_algebra_is_sigma_algebra[T] {
+    closed_under_complement(trivial_sigma_algebra_sets[T]) and closed_under_countable_union(trivial_sigma_algebra_sets[T])
+} by {
+    let trivial = trivial_sigma_algebra_sets[T]
+
+    trivial = Set.singleton(Set.empty_set[T]).insert(Set.universal_set)
+    trivial.contains(Set.empty_set)
+    
+    forall(s: Set[T]) {
+        if trivial.contains(s) {
+            s = Set.empty_set or s = Set.universal_set
+            if s = Set.empty_set {
+                trivial.contains(s.c)
+            }
+            trivial.contains(s.c)
+        }
+    }
+
+    closed_under_complement(trivial_sigma_algebra_sets[T])
+
+    forall(f: Nat -> Set[T]) {
+        if forall(n: Nat) { trivial.contains(f(n)) } {
+            // All sets in the family are either empty or universal
+            forall(n: Nat) {
+                f(n) = Set.empty_set or f(n) = Set.universal_set
+            }
+
+            // The union is therefore either empty or universal, each case is
+            // contained in the trivial sigma algebra
+            if exists(n: Nat) { f(n) = Set.universal_set } {
+                union_family(f) = Set.universal_set
+                trivial.contains(union_family(f))
+            } else {
+                forall(n: Nat) { f(n) = Set.empty_set }
+                union_family(f) = Set.empty_set
+                trivial.contains(union_family(f))
+            }
+
+            trivial.contains(union_family(f))
+        } 
+    }
+
+    closed_under_countable_union(trivial_sigma_algebra_sets[T])
+}
+
+structure SigmaAlgebra[T] {
+    sets: Set[Set[T]]
+} constraint {
+    sets.contains(Set.empty_set)
+    and closed_under_complement(sets)
+    and closed_under_countable_union(sets)
+}
+
+attributes SigmaAlgebra[T] {
+    let trivial_algebra = SigmaAlgebra[T].new(trivial_sigma_algebra_sets)
+}

@@ -1,0 +1,1 @@
+{"goal":"exists(k0: Real) { k0 >= Real.0 }","proof":["let s0: Real satisfy { true }","let s1: lib(int.int_base).Int satisfy { true }","not s0.zpow(lib(int.int_base).Int.2 * s1) >= Real.0","s0.zpow(lib(int.int_base).Int.2 * s1) >= Real.0"]}

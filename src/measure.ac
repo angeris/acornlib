@@ -1,0 +1,10 @@
+from sigma_algebra import SigmaAlgebra
+from extended_reals import ExtendedNonnegReal
+
+structure MeasureableSpace[T] {
+    sigma_algebra: SigmaAlgebra[T]
+    measure: SigmaAlgebra[T] -> ExtendedNonnegReal
+} constraint {
+    true
+    // XXX
+}

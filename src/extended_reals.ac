@@ -41,6 +41,10 @@ attributes NonnegativeReal {
     define lt(self, other: NonnegativeReal) -> Bool {
         self.value < other.value
     }
+
+    define lte(self, other: NonnegativeReal) -> Bool {
+        self.value <= other.value
+    }
 }
 
 inductive ExtendedNonnegReal {
@@ -169,5 +173,56 @@ attributes ExtendedNonnegReal {
                 }
             }
         }
+    }
+
+    define lt(self, other: ExtendedNonnegReal) -> Bool {
+        match (self) {
+            ExtendedNonnegReal.finite(x) {
+                match (other) {
+                    ExtendedNonnegReal.finite(y) {
+                        x < y
+                    }
+                    ExtendedNonnegReal.infinity {
+                        true
+                    }
+                }
+            }
+            ExtendedNonnegReal.infinity {
+                false
+            }
+        }
+    }
+
+    define lte(self, other: ExtendedNonnegReal) -> Bool {
+        match (self) {
+            ExtendedNonnegReal.finite(x) {
+                match (other) {
+                    ExtendedNonnegReal.finite(y) {
+                        x <= y
+                    }
+                    ExtendedNonnegReal.infinity {
+                        true
+                    }
+                }
+            }
+            ExtendedNonnegReal.infinity {
+                match (other) {
+                    ExtendedNonnegReal.finite(y) {
+                        false
+                    }
+                    ExtendedNonnegReal.infinity {
+                        true
+                    }
+                }
+            }
+        }
+    }
+
+    define gt(self, other: ExtendedNonnegReal) -> Bool {
+        other < self
+    }
+
+    define gte(self, other: ExtendedNonnegReal) -> Bool {
+        other <= self
     }
 }

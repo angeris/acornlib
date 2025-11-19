@@ -76,4 +76,8 @@ structure SigmaAlgebra[T] {
 
 attributes SigmaAlgebra[T] {
     let trivial_algebra = SigmaAlgebra[T].new(trivial_sigma_algebra_sets)
+
+    define contains(self, s: Set[T]) -> Bool {
+        self.sets.contains(s)
+    }
 }

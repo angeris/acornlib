@@ -1,9 +1,22 @@
+from set import Set
 from sigma_algebra import SigmaAlgebra
 from extended_reals import ExtendedNonnegReal
 
+numerals ExtendedNonnegReal
+
+define measure_of_empty_is_zero[T](measure: Set[T] -> ExtendedNonnegReal) -> Bool {
+    measure(Set.empty_set[T]) = 0
+}
+
+define measure_is_nonnegative_over_sigma[T](measure: Set[T] -> ExtendedNonnegReal, sigma: SigmaAlgebra[T]) -> Bool {
+    forall(s: Set[T]) {
+        sigma.contains(s) implies measure(s) >= 0
+    }
+}
+
 structure MeasureableSpace[T] {
     sigma_algebra: SigmaAlgebra[T]
-    measure: SigmaAlgebra[T] -> ExtendedNonnegReal
+    measure: Set[T] -> ExtendedNonnegReal
 } constraint {
     true
     // XXX

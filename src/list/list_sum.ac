@@ -513,6 +513,35 @@ theorem map_contains[T, U](list: List[T], f: T -> U, item: U) {
     })
 }
 
+theorem map_preimage_contains[T, U](list: List[T], f: T -> U, item: T) {
+    list.contains(item) implies map(list, f).contains(f(item))
+} by {
+    define p(x: List[T]) -> Bool {
+        x.contains(item) implies map(x, f).contains(f(item))
+    }
+
+    // Base case
+    p(List.nil[T])
+
+    // Inductive step
+    forall(head: T, tail: List[T]) {
+        if p(tail) {
+            if List.cons(head, tail).contains(item) {
+                if head = item {
+                    map(List.cons(head, tail), f).contains(f(item))
+                } else {
+                    p(List.cons(head, tail))
+                }
+            }
+            p(List.cons(head, tail))
+        }
+    }
+
+    List.induction(function (l: List[T]) {
+        p(l)
+    })
+}
+
 theorem pigeonhole_unique_map[T, U](items: List[T], f: T -> U) {
     items.is_unique and not map(items, f).is_unique implies
     exists(x: T, y: T) {

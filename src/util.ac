@@ -91,3 +91,8 @@ define is_surjective[T](f: T -> T) -> Bool {
 define is_bijection[T](f: T -> T) -> Bool {
     is_injective(f) and is_surjective(f)
 }
+
+/// Singleton data type
+inductive Singleton {
+    e
+}

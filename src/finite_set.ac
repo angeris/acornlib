@@ -25,6 +25,10 @@ attributes FiniteSet[T] {
     /// The empty finite set.
     let empty: FiniteSet[T] = FiniteSet.new(Set[T].empty_set)
 
+    let singleton: T -> FiniteSet[T] = function (a: T) {
+        FiniteSet.new(Set.singleton(a))
+    }
+
     /// Insert preserves finiteness.
     define insert(self, item: T) -> FiniteSet[T] {
         FiniteSet.new(self.underlying_set.insert(item))
@@ -79,4 +83,72 @@ attributes FiniteSet[T] {
     define cardinality_is(self, n: Nat) -> Bool {
         self.underlying_set.cardinality_is(n)
     }
+
+    define map[U](self, f: T -> U) -> FiniteSet[U] {
+        FiniteSet.new(self.underlying_set.map(f))
+    }
+}
+
+from add_comm_monoid import AddCommMonoid
+from list import List, sum
+
+attributes FiniteSet[A: AddCommMonoid] {
+    define sum_is(self, n: A) -> Bool {
+        exists(l: List[A]) {
+            l.contains = self.contains and l.is_unique and sum(l) = n
+        }
+    }
+}
+
+// Why does the AI not one-shot these theorems?
+theorem map_contains_image[T, S](s: FiniteSet[T], f: T -> S, x: T) {
+    s.contains(x) implies s.map(f).contains(f(x))
+} by {
+    s.underlying_set.contains(x) implies s.underlying_set.map(f).contains(f(x))
+    s.contains(x) = s.underlying_set.contains(x)
+    s.underlying_set.map(f).contains(f(x)) = s.map(f).contains(f(x))
+}
+
+theorem underlying_set_is_set[T](s: Set[T]) {
+    s.is_finite implies FiniteSet.new(s).underlying_set = s
+}
+
+theorem singleton_is_same_as_set[T](x: T, y: T) {
+    FiniteSet.singleton(x).contains(y) = Set.singleton(x).contains(y)
+} by {
+    let fin_s = FiniteSet.singleton(x)
+    let s = Set.singleton(x)
+    s.is_finite
+
+    fin_s = FiniteSet.new(s)
+    FiniteSet.new(s).underlying_set = s
+    fin_s.underlying_set = s
+
+    fin_s.contains(y) = s.contains(y)
+}
+
+// I have no idea but this seems to also be needed
+theorem singleton_contains_item[T](x: T, y: T) {
+    FiniteSet.singleton(x).contains(x)
+}
+
+theorem finite_map_preserves_singleton[T, U](x: T, f: T -> U) {
+    FiniteSet.singleton(x).map(f) = FiniteSet.singleton(f(x))
+} by {
+    let fin_s = FiniteSet.singleton(x)
+    let s = Set.singleton(x)
+    s.is_finite
+
+    fin_s = FiniteSet.new(s)
+    FiniteSet.new(s).underlying_set = s
+    fin_s.underlying_set = s
+
+    fin_s.map(f).underlying_set = s.map(f)
+    s.map(f) = Set.singleton(f(x))
+    FiniteSet.new(Set.singleton(f(x))).underlying_set = Set.singleton(f(x))
+
+    fin_s.map(f).underlying_set = FiniteSet.new(Set.singleton(f(x))).underlying_set
+
+    fin_s.map(f) = FiniteSet.new(Set.singleton(f(x)))
+    fin_s.map(f) = FiniteSet.singleton(f(x))
 }

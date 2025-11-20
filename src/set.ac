@@ -1028,6 +1028,36 @@ theorem cardinality_always_exists[K](s: Set[K]) {
     let n = superset.length
 }
 
+theorem empty_set_has_cardinality_zero[K](s: Set[K]) {
+    Set[K].empty_set.cardinality_is(Nat.0)
+} by {
+    // Funny prover help
+    (List[K].nil).filter(Set[K].empty_set.contains).unique.length = Nat.0
+}
+
+theorem singleton_set_has_cardinality_one[K](s: Set[K], x: K) {
+    Set.singleton(x).cardinality_is(Nat.1)
+} by {
+    let l = List.singleton(x)
+    forall(y: K) {
+        if y = x {
+            l.contains(y)
+            Set.singleton(x).contains(y)
+            l.contains(y) = Set.singleton(x).contains(y)
+        } else {
+            not l.contains(y)
+            not Set.singleton(x).contains(y)
+            l.contains(y) = Set.singleton(x).contains(y)
+        }
+        l.contains(y) = Set.singleton(x).contains(y)
+    }
+    Set.singleton(x).contains = l.contains
+    l.filter(Set.singleton(x).contains).unique = l
+    l.filter(Set.singleton(x).contains).unique.length = Nat.1
+}
+
+
+
 theorem union_is_at_most_length[K](a: Set[K], b: Set[K], n1: Nat, n2: Nat) {
     a.cardinality_at_most(n1) and b.cardinality_at_most(n2) implies a.union(b).cardinality_at_most(n1 + n2)
 } by {
@@ -1218,5 +1248,122 @@ theorem set_has_exact_containing_list[K](s: Set[K]) {
     forall(x: K) {
         filtered.contains(x) implies s.contains(x)
         s.contains(x) = filtered.contains(x)
+    }
+}
+
+theorem exact_containing_list_is_exact_cardinality[K](s: Set[K], n: Nat) {
+    s.cardinality_is(n) implies
+    exists(containing_list: List[K]) {
+        forall(x: K) {
+            s.contains(x) = containing_list.contains(x)
+        } and containing_list.is_unique and containing_list.length = n
+    }
+} by {
+    let (l: List[K]) satisfy {
+        s.contains = l.contains and l.is_unique
+    }
+
+    l.filter(s.contains) = l
+    l.filter(s.contains).unique.length = l.length
+    l.length = n
+}
+
+theorem cardinality_one_is_singleton[K](s: Set[K]) {
+    s.cardinality_is(Nat.1) implies exists(x: K) { s = Set.singleton(x) }
+} by {
+    let (l: List[K]) satisfy {
+        s.contains = l.contains and l.length = Nat.1
+    }
+
+    let (x: K, l_tail: List[K]) satisfy {
+        l = List.cons(x, l_tail)
+    }
+
+    l_tail = List.nil
+
+    s.contains(x)
+    l.contains(x)
+    Set.singleton(x).contains(x)
+    forall(y: K) {
+        if y != x {
+            not l.contains(y)
+            not s.contains(y)
+            not Set.singleton(x).contains(y)
+            Set.singleton(x).contains(y) = s.contains(y)
+        }
+        Set.singleton(x).contains(y) = s.contains(y)
+    }
+
+    Set.singleton(x).contains = s.contains
+    s = Set.singleton(x)
+}
+
+define contains_under_map[T, S](s: Set[T], f: T -> S, y: S) -> Bool {
+    exists(x: T) {
+        s.contains(x) and f(x) = y
+    }
+}
+
+attributes Set[T] {
+    define map[S](self, f: T -> S) -> Set[S] {
+        Set[S].new(contains_under_map(self, f))
+    }
+}
+
+theorem map_preserves_finiteness[T, S](s: Set[T], f: T -> S) {
+    s.is_finite implies s.map(f).is_finite
+} by {
+    let (superset: List[T]) satisfy {
+        s.contains = superset.contains
+    }
+
+    forall(y: S) {
+        superset.map(f).contains(y) implies s.map(f).contains(y)
+        if s.map(f).contains(y) {
+            let (x: T) satisfy {
+                s.contains(x) and f(x) = y
+            }
+            superset.contains(x)
+            superset.map(f).contains(y)
+        }
+        s.map(f).contains(y) implies superset.map(f).contains(y)
+    }
+}
+
+theorem map_preserves_singleton[T, S](x: T, f: T -> S) {
+    Set.singleton(x).map(f) = Set.singleton(f(x))
+} by {
+    Set.singleton(x).map(f).contains(f(x))
+    forall(z: T) {
+        if z != x {
+            not Set.singleton(x).contains(z)
+        }
+    }
+    forall(y: S) {
+        if y != f(x) {
+            not Set.singleton(x).map(f).contains(y)
+            not Set.singleton(f(x)).contains(y)
+            Set.singleton(x).map(f).contains(y) = Set.singleton(f(x)).contains(y)
+        }
+        Set.singleton(x).map(f).contains(y) = Set.singleton(f(x)).contains(y)
+    }
+
+    Set.singleton(x).map(f).contains = Set.singleton(f(x)).contains
+}
+
+theorem singleton_contains_only_item[K](x: K) {
+    forall(y: K) {
+        Set.singleton(x).contains(y) implies y = x
+    }
+}
+
+theorem singleton_list_is_singleton_set[K](x: K) {
+    List.singleton(x).contains = Set.singleton(x).contains
+} by {
+    forall(y: K) {
+        List.singleton(x).contains(y) implies Set.singleton(x).contains(y)
+        Set.singleton(x).contains(y) implies List.singleton(x).contains(y)
+
+        List.singleton(x).contains(y) = Set.singleton(x).contains(y)
     }
 }

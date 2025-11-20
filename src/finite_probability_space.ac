@@ -1,0 +1,49 @@
+from real import Real
+from set import Set
+from finite_set import FiniteSet
+from list import List
+
+numerals Real
+
+define all_nonnegative(s: FiniteSet[Real]) -> Bool {
+    forall(x: Real) {
+        s.contains(x) implies x >= 0
+    }
+}
+
+define indicator[T](x: T, y: T) -> Real {
+    if x = y {
+        1
+    } else {
+        0
+    }
+}
+
+define is_distribution_over_finite_support[T](measure: T -> Real, support: FiniteSet[T]) -> Bool {
+    all_nonnegative(support.map(measure)) and support.map(measure).sum_is(1)
+}
+
+structure FiniteProbabilitySpace[T] {
+    measure: T -> Real
+    support: FiniteSet[T]
+} constraint {
+    is_distribution_over_finite_support(measure, support)
+} by {
+    let (x: T) satisfy {
+        true
+    }
+    let support: FiniteSet[T] = FiniteSet.singleton(x)
+    let measure: T -> Real = indicator(x)
+    let s_m = support.map(measure)
+
+    s_m = FiniteSet.singleton(1)
+    forall(y: Real) {
+        s_m.contains(y) implies y >= 0
+    }
+    all_nonnegative(s_m)
+
+    s_m.contains = List.singleton(1).contains
+    s_m.sum_is(1)
+
+    is_distribution_over_finite_support(measure, support)
+}

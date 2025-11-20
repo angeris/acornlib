@@ -1,0 +1,17 @@
+from set import Set
+from option import Option
+
+structure FunctionDomainRestriction[T, U] {
+    f: T -> U
+    domain: Set[T]
+}
+
+attributes FunctionDomainRestriction[T, U] {
+    define eval(self, s: T) -> Option[U] {
+        if self.domain.contains(s) {
+            Option.some(self.f(s))
+        } else {
+            Option.none
+        }
+    }
+}

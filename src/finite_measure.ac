@@ -1,0 +1,36 @@
+from set import Set, pairwise_disjoint
+from sigma_algebra import SigmaAlgebra
+from extended_reals import NonnegativeReal
+
+numerals NonnegativeReal
+
+define measure_of_empty_is_zero[T](measure: Set[T] -> NonnegativeReal) -> Bool {
+    measure(Set.empty_set[T]) = 0
+}
+
+define measure_is_nonnegative_over_sigma[T](measure: Set[T] -> NonnegativeReal, sigma: SigmaAlgebra[T]) -> Bool {
+    forall(s: Set[T]) {
+        sigma.contains(s) implies measure(s) >= 0
+    }
+}
+
+define measure_is_finite[T](measure: Set[T] -> NonnegativeReal, sigma: SigmaAlgebra[T]) -> Bool {
+    exists(ub: NonnegativeReal) { measure(Set.universal_set) <= ub }
+}
+
+// \mu(\bigcup_{n=0}^\infty A_n) = \sum_{n=0}^\infty \mu(A_n) for any pairwise disjoint sequence (A_n) in the sigma algebra
+define measure_is_countably_additive[T](measure: Set[T] -> NonnegativeReal, sigma: SigmaAlgebra[T]) -> Bool {
+    forall(f: Nat -> Set[T]) {
+        if forall(n: Nat) { sigma.contains(f(n)) } and pairwise_disjoint(f) {
+            measure(union_set) = 
+        }
+    }
+}
+
+structure FinitelyMeasureableSpace[T] {
+    sigma_algebra: SigmaAlgebra[T]
+    measure: Set[T] -> NonnegativeReal
+} constraint {
+    true
+    // XXX
+}

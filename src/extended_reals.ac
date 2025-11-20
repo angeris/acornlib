@@ -45,6 +45,14 @@ attributes NonnegativeReal {
     define lte(self, other: NonnegativeReal) -> Bool {
         self.value <= other.value
     }
+
+    define gt(self, other: NonnegativeReal) -> Bool {
+        other < self
+    }
+
+    define gte(self, other: NonnegativeReal) -> Bool {
+        other <= self
+    }
 }
 
 inductive ExtendedNonnegReal {

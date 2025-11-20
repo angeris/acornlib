@@ -1,1 +1,1 @@
-{"goal":"exists(k0: SigmaAlgebra[T], k1: Set[T] -> ExtendedNonnegReal) { true }","proof":[]}
+{"goal":"exists(k0: SigmaAlgebra[T], k1: Set[T] -> NonnegativeReal) { true }","proof":[]}

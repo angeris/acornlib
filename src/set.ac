@@ -630,6 +630,14 @@ theorem family_union_of_empty_sets_is_empty[T, U](f: T -> Set[U]) {
     u.contains = Set.empty_set[U].contains
 }
 
+define pairwise_disjoint[K, I](sets: I -> Set[K]) -> Bool {
+    forall(i: I) {
+        forall(j: I) {
+            i != j implies sets(i).is_disjoint(sets(j))
+        }
+    }
+}
+
 // Sequences of sets
 /// True if a sequence of sets is decreasing, meaning each set contains the next.
 define is_decreasing[T](seq: Nat -> Set[T]) -> Bool {

@@ -152,3 +152,11 @@ theorem finite_map_preserves_singleton[T, U](x: T, f: T -> U) {
     fin_s.map(f) = FiniteSet.new(Set.singleton(f(x)))
     fin_s.map(f) = FiniteSet.singleton(f(x))
 }
+
+theorem sum_of_singleton_is_element[T: AddCommMonoid](x: T) {
+    FiniteSet.singleton(x).sum_is(x)
+} by {
+    let fin_s = FiniteSet.singleton(x)
+    let list_s = List.singleton(x)
+    list_s.contains = fin_s.contains
+}
